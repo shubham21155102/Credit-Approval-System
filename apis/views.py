@@ -141,3 +141,43 @@ def calculate_credit_score(loan, new_emi):
     credit_score += average_ratio * 70  # Adjust based on the average ratio
     credit_score += current_year_activity_points
     return round(credit_score)
+@api_view(['GET'])
+def view_loan(request):
+    customer_id= request.data.get('customer_id')
+    try:
+        loan_data = Loan.objects.filter(customer_id=customer_id)
+        loan_json = [loan.serialize() for loan in loan_data]
+        return JsonResponse({'LoanData': loan_json}, status=200)
+    except Exception as e:
+        return JsonResponse({'message': str(e)}, status=500)
+@api_view(['GET'])
+def get_all_loans(request):
+    try:
+        loan_data = Loan.objects.all().select_related('customer')
+        loan_json = [loan.serialize() for loan in loan_data]
+        return JsonResponse({'LoanData': loan_json}, status=200)
+    except Exception as e:
+        return JsonResponse({'message': str(e)}, status=500)
+@api_view(['GET'])
+def view_statement(request):
+    if request.method == 'POST':
+        try:
+            customer_id = request.POST.get('customer_id')
+            loan_id = request.POST.get('loan_id')
+            
+            loan = Loan.objects.get(customer_id=customer_id, loan_id=loan_id)
+            
+            # Assuming loan is a model object
+            loan_data = {
+                'customer_id': loan.customer_id,
+                'loan_id': loan.loan_id,
+                # Add more fields as needed
+            }
+            
+            return JsonResponse(loan_data, status=201)
+        except Loan.DoesNotExist:
+            return JsonResponse({'message': 'Loan not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'message': str(e)}, status=500)
+    else:
+        return JsonResponse({'message': 'Method not allowed'}, status=405)

@@ -9,5 +9,8 @@ urlpatterns = [
   path("add_bulk_loans", views.add_bulk_loans),
   path("register", views.register),
   path("check-eligibility", views.check_eligibility),
-  path("create-loan", views.create_loan)
+  path("create-loan", views.create_loan),
+  path("get-loans", views.get_loans),
+  path("get-customers", views.get_customers),
+  path("get-loan", views.get_loan),
  ]
